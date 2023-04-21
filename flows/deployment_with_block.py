@@ -6,7 +6,7 @@ github_block = GitHub.load('github-block')
 
 deployment = Deployment.build_from_flow(
     flow=github_pipeline,
-    name='Deployment Simple',
+    name='Deployment With Block',
     parameters={
         'date': '2015-01-01',
         'hour': 1
