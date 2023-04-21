@@ -1,0 +1,47 @@
+version: "3.9"
+
+services:
+  postgres:
+    image: postgres:13
+    container_name: postgres-13
+    volumes:
+      - data_pg:/var/lib/postgresql/data
+    environment:
+      - POSTGRES_USER=root
+      - POSTGRES_PASSWORD=root
+      - POSTGRES_DB=orion
+    ports:
+      - 5432:5432
+  
+  prefect-orion:
+    build:
+      dockerfile: Dockerfile
+    container_name: prefect-orion
+    restart: always
+    volumes:
+      - data_prefect:/root/.prefect
+      - .:/opt/pipelines
+    entrypoint: ["prefect", "orion", "start"]
+    environment:
+      - PREFECT_ORION_API_HOST=0.0.0.0
+      - PREFECT_ORION_DATABASE_CONNECTION_URL=postgresql+asyncpg://root:root@postgres:5432/orion
+    ports:
+      - 4200:4200
+    depends_on:
+      - postgres
+
+  prefect-agent:
+    build:
+      dockerfile: Dockerfile
+    container_name: prefect-agent
+    restart: always
+    entrypoint: ["prefect", "agent", "start", "--pool", "default-agent-pool", "--work-queue", "default"]
+    environment:
+      - PREFECT_ORION_API_HOST=0.0.0.0
+      - PREFECT_ORION_DATABASE_CONNECTION_URL=postgresql+asyncpg://root:root@postgres:5432/orion
+    depends_on:
+      - prefect-orion
+
+volumes:
+  data_pg:
+  data_prefect:
