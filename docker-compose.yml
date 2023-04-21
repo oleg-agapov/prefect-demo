@@ -10,8 +10,6 @@ services:
       - POSTGRES_USER=root
       - POSTGRES_PASSWORD=root
       - POSTGRES_DB=orion
-    ports:
-      - 5432:5432
   
   prefect-orion:
     build:
